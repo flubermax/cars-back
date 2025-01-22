@@ -1,8 +1,16 @@
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import User from './User.js'
 import FileService from '../FileService.js'
-import bcrypt from 'bcrypt'
 import Role from '../roles/Role.js'
+import {SECRET_KEY} from '../config.js'
 
+const generateAccessToken = (id, roles) => {
+  const payload = {
+    id, roles
+  }
+  return jwt.sign(payload, SECRET_KEY, {expiresIn: '4h'})
+}
 class UserService {
   async registerUser(user) {
     const existingUser = await User.findOne({login: user.login })
@@ -24,18 +32,53 @@ class UserService {
   }
 
   async loginUser(data) {
-    const currentUser = await User.findOne({login: data.login, password: data.password})
-    if (currentUser) {
-      return {
-        success: true,
-        msg: 'Авторизация прошла успешно',
-        data: currentUser
-      }
-    } else {
+    const {login, password} = data
+    const user = await User.findOne({login})
+    if (!user) {
       return {
         success: false,
-        msg: 'Неверный логин или пароль',
+        msg: `Пользователь ${login} не найден`,
         data: null
+      }
+    }
+    const validPassword = bcrypt.compareSync(password, user.password)
+    if (!validPassword) {
+      return {
+        success: false,
+        msg: `Введён неверный пароль`,
+        data: null
+      }
+    }
+    const token = generateAccessToken(user._id, user.roles)
+    return {
+      success: true,
+      msg: `Авторизация прошла успешно`,
+      token,
+      user: {
+        login: user.login,
+        name: user.name,
+        location: user.location,
+        avatar: user.avatar,
+        phone: user.phone,
+        favorites: user.favorites,
+      }
+    }
+  }
+
+  async auth(data) {
+    const user = await User.findOne({_id: data.user.id})
+    const token = generateAccessToken(user._id, user.roles)
+    return {
+      success: true,
+      msg: `Авторизация прошла успешно`,
+      token,
+      user: {
+        login: user.login,
+        name: user.name,
+        location: user.location,
+        avatar: user.avatar,
+        phone: user.phone,
+        favorites: user.favorites,
       }
     }
   }

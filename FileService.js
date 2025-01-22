@@ -18,9 +18,7 @@ class FileService {
   }
 
   deleteFile(fileName) {
-    console.log(`--file-----------`, fileName)
     const file = path.resolve('static', fileName)
-    console.log(`file === `,file)
     fs.unlink(path.resolve('static', fileName), (err) => {
       if (err) throw err;
       console.log('path/file.txt was deleted');

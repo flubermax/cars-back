@@ -30,12 +30,21 @@ class UserController {
     }
   }
 
+  async auth(req, res) {
+    try {
+      const data = await UserService.auth(req)
+      res.json(data)
+    } catch (error) {
+      res.status(500).json(error)
+    }
+  }
+
   async getAllUsers(req, res) {
     try {
-      const userRole = new Role()
-      const adminRole = new Role({value: 'ADMIN'})
-      await userRole.save()
-      await adminRole.save()
+      // const userRole = new Role()
+      // const adminRole = new Role({value: 'ADMIN'})
+      // await userRole.save()
+      // await adminRole.save()
       const users = await UserService.getAllUsers()
       return res.json(users)
     } catch (error) {

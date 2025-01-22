@@ -4,9 +4,7 @@ import fileUpload from 'express-fileupload'
 import cors from 'cors'
 import carRouter from './router/carRouter.js'
 import userRouter from './router/userRouter.js'
-
-const PORT = 8088
-const DB_URL = 'mongodb+srv://flubermax:322hardPASS81@node-test.3sc58.mongodb.net/?retryWrites=true&w=majority&appName=node-test'
+import {PORT, DB_URL} from './config.js'
 
 const app = express()
 
