@@ -17,14 +17,16 @@ router.get('/:id', UserController.getUserById)
 
 router.post('/register', [
   check('login', 'Логин должен содержать символы').notEmpty(),
-  check('password', 'Пароль должен быть не короче 4х символов').isLength({min: 4})
+  check('password', 'Пароль должен состоять минимум из 4х символов').isLength({min: 4})
 ], UserController.registerUser)
 
 router.post('/login', UserController.loginUser)
 
-router.post('/update', UserController.updateUser)
+router.post('/update-profile', UserController.updateUserProfile)
 
-router.put('/update', UserController.updateUser)
+router.post('/update-password', UserController.updateUserPassword)
+
+router.post('/add-to-fav', UserController.addToFav)
 
 router.delete('/delete/:id', UserController.deleteUser)
 

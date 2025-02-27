@@ -11,11 +11,25 @@ class UserController {
   async registerUser(req, res) {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: 'Ошибка при регистрации', value: errors})
+      const msgArray = []
+      let msgString
+      errors.errors.forEach(err => {
+        msgArray.push(err.msg)
+      })
+      if (msgArray.length > 1) {
+        msgString = msgArray.join('; ')
+      } else {
+        msgString = msgArray.join('')
+      }
+      return res.status(200).json({
+        success: false,
+        message: msgString,
+        data: errors
+      })
     }
     try {
-      const data = await UserService.registerUser(req.body)
-      res.json(data)
+      const result = await UserService.registerUser(req.body)
+      res.json(result)
     } catch (error) {
       res.status(500).json(error)
     }
@@ -23,8 +37,8 @@ class UserController {
 
   async loginUser(req, res) {
     try {
-      const data = await UserService.loginUser(req.body)
-      res.json(data)
+      const result = await UserService.loginUser(req.body)
+      res.json(result)
     } catch (error) {
       res.status(500).json(error)
     }
@@ -32,8 +46,8 @@ class UserController {
 
   async auth(req, res) {
     try {
-      const data = await UserService.auth(req)
-      res.json(data)
+      const result = await UserService.auth(req)
+      res.json(result)
     } catch (error) {
       res.status(500).json(error)
     }
@@ -55,19 +69,30 @@ class UserController {
   async getUserById(req, res) {
     try {
       const { id } = req.params
-      const user = await UserService.getUserById(id)
-      return res.json(user)
+      const response = await UserService.getUserById(id)
+      return res.json(response)
     } catch (error) {
       res.status(500).json(error.message)
     }
   }
 
-  async updateUser(req, res) {
+  async updateUserProfile(req, res) {
     try {
+      console.log(req.files.avatarFile)
       const user = req.body
       const file = req?.files?.avatarFile ? req.files.avatarFile : null
-      const updatedUser = await UserService.updateUser(user, file)
-      return res.json(updatedUser)
+      const result = await UserService.updateUserProfile(user, file)
+      return res.json(result)
+    } catch (error) {
+      res.status(500).json(error.message)
+    }
+  }
+
+  async updateUserPassword(req, res) {
+    try {
+      const user = req.body
+      const result = await UserService.updateUserPassword(user)
+      return res.json(result)
     } catch (error) {
       res.status(500).json(error.message)
     }
@@ -76,8 +101,18 @@ class UserController {
   async deleteUser(req, res) {
     try {
       const {id} = req.params
-      const deletedUser = await UserService.deleteUser(id)
-      return res.json(deletedUser)
+      const result = await UserService.deleteUser(id)
+      return res.json(result)
+    } catch (error) {
+      res.status(500).json(error.message)
+    }
+  }
+
+  async addToFav(req, res) {
+    try {
+      const {userIdf, carIdf} = req.body
+      const result = await UserService.addToFav(userIdf, carIdf)
+      return res.json(result)
     } catch (error) {
       res.status(500).json(error.message)
     }

@@ -1,40 +1,107 @@
 import Car from './Car.js'
 import FileService from '../FileService.js'
+import {idfGenerator} from '../utils/idfGenerator.js'
+
+const getCarData = (car) => {
+  return {
+    idf: car.idf,
+    images: car.images,
+    model: car.model,
+    color: car.color,
+    engineType: car.engineType,
+    engineCapacity: car.engineCapacity,
+    drive: car.drive,
+    enginePower: car.enginePower,
+    transmission: car.transmission,
+    leftHandDrive: car.leftHandDrive,
+    year: car.year,
+    mileage: car.mileage,
+    price: car.price,
+    descr: car.descr,
+    authorIdf: car.authorIdf,
+    authorName: car.authorName,
+    authorAvatar: car.authorAvatar,
+    authorPhone: car.authorPhone,
+    authorLocation: car.authorLocation,
+  }
+}
 
 class CarService {
-  async addCar(car, img) {
-    const fileName = FileService.saveFile(img)
-    const addedCar = await Car.create({...car, img: fileName})
-    return addedCar
+  async addCar(car, images) {
+    const fileNames = FileService.saveCarFiles(images)
+    const addedCar = await Car.create({...car, images: fileNames, idf: idfGenerator()})
+    return {
+      success: true,
+      message: 'Объявление успешно добавлено',
+      data: addedCar
+    }
   }
 
   async getAllCars() {
     const cars = await Car.find()
-    return cars
+    return {
+      success: true,
+      message: '',
+      data: cars
+    }
   }
 
-  async getCarById(id) {
-    if (!id) {
-      throw new Error('ID не указан')
+  async getCarByIdf(idf) {
+    if (!idf) {
+      throw new Error('Idf не указан')
     }
-    const car = await Car.findById(id)
-    return car
+    const car = await Car.findOne({idf})
+    return {
+      success: true,
+      message: '',
+      data: car
+    }
   }
 
-  async updateCar(car) {
-    if (!car.id) {
-      throw new Error('ID не указан')
+  async getFavorites(body) {
+    const cars = []
+    for (let carIdf of body.idfs) {
+      const car = await Car.findOne({idf: carIdf})
+      if (car) cars.push(car)
     }
-    const updatedCar = await Car.findByIdAndUpdate(car.id, car, {new: true})
-    return updatedCar
+    return {
+      success: true,
+      message: '',
+      data: cars
+    }
   }
 
-  async deleteCar(id) {
-    if (!id) {
-      throw new Error('ID не указан')
+  async getUserCars(idf) {
+    const cars = await Car.find({authorIdf: idf})
+    return {
+      success: true,
+      message: '',
+      data: cars
     }
-    const deletedCar = await Car.findByIdAndDelete(id)
-    return deletedCar
+  }
+
+  async updateCar(car, newImages) {
+    // const carForUpdate = await Car.findOne({idf: car.idf})
+    const fileNames = newImages ? FileService.saveCarFiles(newImages) : []
+    const updatedCar = await Car.findOneAndUpdate({idf: car.idf}, {...car, images: [...JSON.parse(car.images), ...fileNames ]}, {new: true})
+
+    // if (userForUpdate.avatar && (user.avatar !== userForUpdate.avatar)) {
+    //   FileService.deleteCarFiles(userForUpdate.avatar)
+    // }
+    return {
+      success: true,
+      message: 'Объявление успешно обновлено',
+      data: updatedCar
+    }
+  }
+
+  async deleteCar(idf) {
+    const deletedCar = await Car.findOneAndDelete({idf})
+    return {
+      success: true,
+      message: 'Объявление успешно удалено',
+      data: deletedCar
+    }
   }
 }
 

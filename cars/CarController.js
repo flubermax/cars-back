@@ -7,8 +7,8 @@ import CarService from './CarService.js'
 class CarController {
   async addCar(req, res) {
     try {
-      const car = await CarService.addCar(req.body, req.files.img)
-      res.json(car)
+      const result = await CarService.addCar(req.body, req.files)
+      res.json(result)
     } catch (error) {
       res.status(500).json(error)
     }
@@ -16,28 +16,46 @@ class CarController {
 
   async getAllCars(req, res) {
     try {
-      const cars = await CarService.getAllCars()
-      return res.json(cars)
+      const result = await CarService.getAllCars()
+      return res.json(result)
     } catch (error) {
       res.status(500).json(error)
     }
   }
 
-  async getCarById(req, res) {
+  async getCarByIdf(req, res) {
     try {
-      const { id } = req.params
-      const car = await CarService.getCarById(id)
-      return res.json(car)
+      const { idf } = req.params
+      const result = await CarService.getCarByIdf(idf)
+      return res.json(result)
     } catch (error) {
       res.status(500).json(error.message)
     }
   }
 
+  async getFavorites(req, res) {
+    try {
+      const result = await CarService.getFavorites(req.body)
+      return res.json(result)
+    } catch (error) {
+      res.status(500).json(error)
+    }
+  }
+
+  async getUserCars(req, res) {
+    try {
+      const { idf } = req.params
+      const result = await CarService.getUserCars(idf)
+      return res.json(result)
+    } catch (error) {
+      res.status(500).json(error)
+    }
+  }
+
   async updateCar(req, res) {
     try {
-      const car = req.body
-      const updatedCar = await CarService.updateCar(car)
-      return res.json(updatedCar)
+      const result = await CarService.updateCar(req.body, req.files)
+      return res.json(result)
     } catch (error) {
       res.status(500).json(error.message)
     }
@@ -45,9 +63,9 @@ class CarController {
 
   async deleteCar(req, res) {
     try {
-      const {id} = req.params
-      const deletedCar = await CarService.deleteCar(id)
-      return res.json(deletedCar)
+      const {idf} = req.params
+      const result = await CarService.deleteCar(idf)
+      return res.json(result)
     } catch (error) {
       res.status(500).json(error.message)
     }
