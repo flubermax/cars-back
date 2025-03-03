@@ -16,7 +16,7 @@ class CarController {
 
   async getAllCars(req, res) {
     try {
-      const result = await CarService.getAllCars()
+      const result = await CarService.getAllCars(req.body)
       return res.json(result)
     } catch (error) {
       res.status(500).json(error)

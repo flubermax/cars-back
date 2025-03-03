@@ -37,12 +37,66 @@ class CarService {
     }
   }
 
-  async getAllCars() {
+  async getAllCars(filter) {
     const cars = await Car.find()
+    let data = cars
+    for (let key in filter) {
+      const val = filter[key]
+
+      if (val && val !== 'all') {
+        switch (key) {
+          case 'brand':
+          case 'model':
+            data = data.filter((item) => item[key] === val)
+            break
+          case 'transmission':
+          case 'drive':
+          case 'engineType':
+            if (typeof val === 'object') {
+              data = data.filter((item) => item[key] === val)
+              break
+            }
+          case 'yearFrom':
+            data = data.filter((item) => Number(item.year) >= Number(val))
+            break
+          case 'yearTo':
+            data = data.filter((item) => Number(item.year) <= Number(val))
+            break
+          case 'engineСapacityFrom':
+            data = data.filter((item) => Number(item.engineCapacity) >= Number(val))
+            break
+          case 'engineСapacityTo':
+            data = data.filter((item) => Number(item.engineCapacity) <= Number(val))
+            break
+          case 'priceFrom':
+            if (typeof val === 'string') {
+              data = data.filter((item) => Number(item.price) >= Number(val.replace(/\s+/g, '')))
+            }
+            break
+          case 'priceTo':
+            if (typeof val === 'string') {
+              data = data.filter((item) => Number(item.price) <= Number(val.replace(/\s+/g, '')))
+            }
+            break
+          case 'mileageFrom':
+            if (typeof val === 'string') {
+              data = data.filter((item) => Number(item.mileage) >= Number(val.replace(/\s+/g, '')))
+            }
+            break
+          case 'mileageTo':
+            if (typeof val === 'string') {
+              data = data.filter((item) => Number(item.mileage) <= Number(val.replace(/\s+/g, '')))
+            }
+            break
+          default:
+            data = cars
+        }
+      }
+    }
     return {
       success: true,
       message: '',
-      data: cars
+      data: data
     }
   }
 
@@ -81,13 +135,15 @@ class CarService {
   }
 
   async updateCar(car, newImages) {
-    // const carForUpdate = await Car.findOne({idf: car.idf})
+    const parsedImages = JSON.parse(car.images)
+    const carForUpdate = await Car.findOne({idf: car.idf})
+    const imagesToDel = []
+    carForUpdate.images.forEach(el => {
+      if (!parsedImages.includes(el)) imagesToDel.push(el)
+    })
     const fileNames = newImages ? FileService.saveCarFiles(newImages) : []
-    const updatedCar = await Car.findOneAndUpdate({idf: car.idf}, {...car, images: [...JSON.parse(car.images), ...fileNames ]}, {new: true})
-
-    // if (userForUpdate.avatar && (user.avatar !== userForUpdate.avatar)) {
-    //   FileService.deleteCarFiles(userForUpdate.avatar)
-    // }
+    FileService.deleteCarFiles(imagesToDel)
+    const updatedCar = await Car.findOneAndUpdate({idf: car.idf}, {...car, images: [...parsedImages, ...fileNames ]}, {new: true})
     return {
       success: true,
       message: 'Объявление успешно обновлено',

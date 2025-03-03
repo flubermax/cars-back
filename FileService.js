@@ -18,10 +18,9 @@ class FileService {
   }
 
   deleteUserFile(fileName) {
-    const file = path.resolve('static', fileName)
     fs.unlink(path.resolve('static', fileName), (err) => {
       if (err) throw err;
-      console.log('path/file.txt was deleted');
+      console.log(fileName +' was deleted');
     })
   }
 
@@ -36,20 +35,20 @@ class FileService {
           fileNames.push(fileName)
         }
       }
-      // console.log(`---- fileNames -----`)
-      // console.log(fileNames)
       return fileNames
     } catch (error) {
       console.log(error)
     }
   }
 
-  deleteCarFiles(fileName) {
-    const file = path.resolve('static', fileName)
-    fs.unlink(path.resolve('static', fileName), (err) => {
-      if (err) throw err;
-      console.log('path/file.txt was deleted');
-    })
+  deleteCarFiles(fileNames) {
+    for (let fileName of fileNames) {
+      fs.unlink(path.resolve('static', fileName), (err) => {
+        if (err) throw err;
+        console.log(fileName +' was deleted');
+      })
+    }
+
   }
 }
 
