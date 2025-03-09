@@ -14,6 +14,8 @@ import mongoose from 'mongoose'
 
 const Car = new mongoose.Schema({
   idf: String,
+  createDate: Number,
+  changeDate: Number,
   images: [{
     type: String
   }],

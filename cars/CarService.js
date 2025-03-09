@@ -26,6 +26,14 @@ const getCarData = (car) => {
   }
 }
 
+function paginationItems(data, page, limit) {
+  return data.slice(limit * (page - 1), limit * page)
+}
+
+function paginationPagesCount(data, limit) {
+  return Math.ceil(data.length / limit)
+}
+
 class CarService {
   async addCar(car, images) {
     const fileNames = FileService.saveCarFiles(images)
@@ -37,7 +45,7 @@ class CarService {
     }
   }
 
-  async getAllCars(filter) {
+  async getCars(filter, sortBy, page, limit) {
     const cars = await Car.find()
     let data = cars
     for (let key in filter) {
@@ -93,10 +101,30 @@ class CarService {
         }
       }
     }
+
+    const pagesCount = paginationPagesCount(data, limit)
+
+    switch (sortBy) {
+      case 'date':
+        data.sort((a, b) => b.createDate - a.createDate)
+        break
+      case 'price-min':
+        data.sort((a, b) => a.price - b.price)
+        break
+      case 'price-max':
+        data.sort((a, b) => b.price - a.price)
+        breaks
+    }
+
+    data = paginationItems(data, page, limit)
+
     return {
       success: true,
       message: '',
-      data: data
+      data: {
+        cars: data,
+        pagesCount
+      }
     }
   }
 

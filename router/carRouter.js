@@ -3,7 +3,7 @@ import CarController from '../cars/CarController.js'
 
 const router = new Router()
 
-router.post('/', CarController.getAllCars)
+router.post('/', CarController.getCars)
 router.get('/:idf', CarController.getCarByIdf)
 router.post('/add', CarController.addCar)
 router.post('/update', CarController.updateCar)
